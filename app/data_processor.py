@@ -100,22 +100,29 @@ class ThesisDataProcessor:
         # Process from scratch
         print("Processing thesis...")
         
-        # Get markdown text
-        if markdown_url:
+        # Get markdown text - try markdown first, then PDF
+        markdown_file = os.path.join(settings.raw_data_path, "thesis.md")
+        
+        if os.path.exists(markdown_file):
+            # Use existing markdown file
+            print(f"Loading markdown from: {markdown_file}")
+            with open(markdown_file, 'r', encoding='utf-8') as f:
+                md_text = f.read()
+        elif markdown_url:
             # For deployment - download from URL
             md_text = self.load_markdown_from_url(markdown_url)
         elif pdf_path and os.path.exists(pdf_path):
             # Local development - convert PDF
             md_text = self.pdf_to_markdown(pdf_path)
         else:
-            # Try default path
+            # Try default PDF path as fallback
             default_pdf = os.path.join(settings.raw_data_path, "thesis.pdf")
             if os.path.exists(default_pdf):
                 md_text = self.pdf_to_markdown(default_pdf)
             else:
                 raise FileNotFoundError(
-                    "No thesis source found. Provide either pdf_path or markdown_url, "
-                    "or place thesis.pdf in data/raw/"
+                    "No thesis source found. Please provide thesis.md, thesis.pdf, "
+                    "or specify pdf_path/markdown_url parameters."
                 )
         
         # Chunk the text
