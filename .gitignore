@@ -42,11 +42,13 @@ ENV/
 
 # Data files
 *.pdf
-*.md
 data/embeddings/
 data/chunks/
 *.pickle
 *.pkl
+
+# Allow thesis markdown
+!data/raw/thesis.md
 
 # API keys and secrets
 anthropic_api_key.txt
