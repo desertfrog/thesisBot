@@ -3,35 +3,89 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Thesis Chatbot</title>
+    <title>Thesis Chatbot - Fission Chain Dynamics</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="chat-container">
-        <div class="chat-header">
-            <h2>💬 Ask About My Thesis</h2>
-            <p>Ask any question about my research and get AI-powered answers</p>
-        </div>
-        
-        <div class="chat-messages" id="chatMessages">
-            <div class="message bot-message">
-                <div class="message-content">
-                    👋 Hi! I'm here to answer questions about the thesis. What would you like to know?
+    <div class="main-container">
+        <!-- Sidebar with Table of Contents -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h3>📖 Table of Contents</h3>
+            </div>
+            <div class="toc-content">
+                <div class="toc-item" data-question="What is this thesis about?">
+                    <span class="chapter-num">1</span> Introduction
+                </div>
+                <div class="toc-item" data-question="What are fissile material properties and detection techniques?">
+                    <span class="chapter-num">2</span> Fissile Material Properties and Detection
+                </div>
+                <div class="toc-item" data-question="How does digital pulse processing work?">
+                    <span class="chapter-num">3</span> Digital Pulse Processing
+                </div>
+                <div class="toc-item" data-question="What are time correlated pulse height distributions?">
+                    <span class="chapter-num">4</span> Time Correlated Pulse Height Distributions
+                </div>
+                <div class="toc-item" data-question="What is TOFFEE and how does it work?">
+                    <span class="chapter-num">5</span> Time of Flight Fixed by Energy Estimation
+                </div>
+                <div class="toc-item" data-question="How do you solve for subcritical assembly physical parameters?">
+                    <span class="chapter-num">6</span> Solving For Subcritical Assembly Parameters
+                </div>
+                <div class="toc-item" data-question="What are the limits of the 3D imaging technique?">
+                    <span class="chapter-num">7</span> 3D Imaging
+                </div>
+                <div class="toc-item" data-question="What are the main conclusions and future work?">
+                    <span class="chapter-num">8</span> Summary, Conclusions and Future Work
+                </div>
+            </div>
+            
+            <div class="suggested-questions">
+                <h4>💡 Try These Questions:</h4>
+                <div class="question-btn" data-question="What is the main contribution of this thesis?">
+                    Main contribution
+                </div>
+                <div class="question-btn" data-question="What methodology was used for measuring fission chain dynamics?">
+                    Methodology
+                </div>
+                <div class="question-btn" data-question="What are the key findings about neutron multiplication?">
+                    Key findings
+                </div>
+                <div class="question-btn" data-question="How does this research contribute to nuclear security?">
+                    Applications
                 </div>
             </div>
         </div>
-        
-        <div class="chat-input-container">
-            <div class="input-group">
-                <input 
-                    type="text" 
-                    id="messageInput" 
-                    placeholder="Ask a question about the thesis..."
-                    maxlength="500"
-                >
-                <button id="sendButton">Send</button>
+
+        <!-- Chat Interface -->
+        <div class="chat-container">
+            <div class="chat-header">
+                <h2>💬 Ask About My Thesis</h2>
+                <p><strong>Measuring Fission Chain Dynamics Through Inter-event Timing of Correlated Particles</strong></p>
+                <p class="subtitle">Mateusz Monterial • University of Michigan • 2017</p>
             </div>
-            <div class="status" id="status"></div>
+            
+            <div class="chat-messages" id="chatMessages">
+                <div class="message bot-message">
+                    <div class="message-content">
+                        👋 Hi! I'm here to answer questions about my PhD thesis on measuring fission chain dynamics. 
+                        You can click on any chapter in the table of contents or use the suggested questions to get started!
+                    </div>
+                </div>
+            </div>
+            
+            <div class="chat-input-container">
+                <div class="input-group">
+                    <input 
+                        type="text" 
+                        id="messageInput" 
+                        placeholder="Ask a question about the thesis..."
+                        maxlength="500"
+                    >
+                    <button id="sendButton">Send</button>
+                </div>
+                <div class="status" id="status"></div>
+            </div>
         </div>
     </div>
     

@@ -29,6 +29,27 @@ class ThesisChatbot {
         this.messageInput.addEventListener('input', () => {
             this.updateCharacterCount();
         });
+        
+        // Table of contents item clicks
+        document.querySelectorAll('.toc-item').forEach(item => {
+            item.addEventListener('click', () => {
+                const question = item.getAttribute('data-question');
+                this.askQuestion(question);
+            });
+        });
+        
+        // Question button clicks
+        document.querySelectorAll('.question-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const question = btn.getAttribute('data-question');
+                this.askQuestion(question);
+            });
+        });
+    }
+    
+    askQuestion(question) {
+        this.messageInput.value = question;
+        this.sendMessage();
     }
     
     async sendMessage() {
@@ -135,20 +156,4 @@ class ThesisChatbot {
 // Initialize the chatbot when the page loads
 document.addEventListener('DOMContentLoaded', () => {
     new ThesisChatbot();
-    
-    // Add some example questions
-    setTimeout(() => {
-        const examplesDiv = document.createElement('div');
-        examplesDiv.className = 'message bot-message';
-        examplesDiv.innerHTML = `
-            <div class="message-content">
-                💡 <strong>Try asking questions like:</strong><br>
-                • "What is the main contribution of this thesis?"<br>
-                • "What methodology was used?"<br>
-                • "What are the key findings?"<br>
-                • "How does this research contribute to the field?"
-            </div>
-        `;
-        document.getElementById('chatMessages').appendChild(examplesDiv);
-    }, 1000);
 }); 
