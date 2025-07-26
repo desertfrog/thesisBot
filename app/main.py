@@ -2,6 +2,7 @@
 FastAPI application for the thesis chatbot.
 """
 
+import os
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
@@ -43,6 +44,12 @@ async def startup_event():
     """Initialize the chatbot on startup."""
     global chatbot
     try:
+        # First, ensure data is processed
+        processor = ThesisDataProcessor()
+        print("Checking if thesis data needs processing...")
+        processor.process_thesis()  # This will auto-detect if already processed
+        
+        # Then initialize chatbot
         chatbot = ThesisChatbot()
         chatbot.load_data()
         print("Chatbot initialized successfully!")
@@ -122,4 +129,5 @@ async def process_thesis():
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000) 
+    port = int(os.environ.get("PORT", 8000))
+    uvicorn.run(app, host="0.0.0.0", port=port) 

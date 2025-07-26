@@ -31,6 +31,14 @@ class ThesisDataProcessor:
         md_text = pymupdf4llm.to_markdown(pdf_path)
         return md_text
     
+    def load_markdown_from_url(self, url: str) -> str:
+        """Load markdown text from a URL (for deployment)."""
+        import requests
+        print(f"Downloading markdown from: {url}")
+        response = requests.get(url)
+        response.raise_for_status()
+        return response.text
+    
     def chunk_text(self, text: str) -> List[str]:
         """Split text into chunks using Langchain's MarkdownTextSplitter."""
         print(f"Splitting text into chunks (size: {settings.chunk_size}, overlap: {settings.chunk_overlap})")
@@ -81,10 +89,8 @@ class ThesisDataProcessor:
         print(f"Loaded {len(chunks)} chunks and embeddings with shape {embeddings.shape}")
         return chunks, embeddings
     
-    def process_thesis(self, pdf_path: str = None) -> Tuple[List[str], np.ndarray]:
+    def process_thesis(self, pdf_path: str = None, markdown_url: str = None) -> Tuple[List[str], np.ndarray]:
         """Complete pipeline to process thesis from PDF to embeddings."""
-        if pdf_path is None:
-            pdf_path = os.path.join(settings.raw_data_path, "thesis.pdf")
         
         # Check if processed data already exists
         if os.path.exists(self.chunks_file) and os.path.exists(self.embeddings_file):
@@ -92,10 +98,25 @@ class ThesisDataProcessor:
             return self.load_processed_data()
         
         # Process from scratch
-        print("Processing thesis from PDF...")
+        print("Processing thesis...")
         
-        # Convert PDF to markdown
-        md_text = self.pdf_to_markdown(pdf_path)
+        # Get markdown text
+        if markdown_url:
+            # For deployment - download from URL
+            md_text = self.load_markdown_from_url(markdown_url)
+        elif pdf_path and os.path.exists(pdf_path):
+            # Local development - convert PDF
+            md_text = self.pdf_to_markdown(pdf_path)
+        else:
+            # Try default path
+            default_pdf = os.path.join(settings.raw_data_path, "thesis.pdf")
+            if os.path.exists(default_pdf):
+                md_text = self.pdf_to_markdown(default_pdf)
+            else:
+                raise FileNotFoundError(
+                    "No thesis source found. Provide either pdf_path or markdown_url, "
+                    "or place thesis.pdf in data/raw/"
+                )
         
         # Chunk the text
         chunks = self.chunk_text(md_text)
