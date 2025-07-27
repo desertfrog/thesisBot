@@ -1,5 +1,5 @@
-// Configuration - Update this URL after deploying to Render
-const API_BASE_URL = 'http://localhost:8000'; // Change to your Render URL later
+// Configuration - Render deployment URL
+const API_BASE_URL = 'https://thesisbot.onrender.com';
 
 class ThesisChatbot {
     constructor() {
