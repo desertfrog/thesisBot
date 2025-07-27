@@ -44,6 +44,13 @@ body {
     font-size: 1.2em;
 }
 
+.toc-description {
+    margin: 8px 0 0 0;
+    font-size: 0.85em;
+    opacity: 0.9;
+    font-weight: normal;
+}
+
 .toc-content {
     flex: 1;
     padding: 20px;
@@ -277,7 +284,7 @@ body {
     border-color: #f5c6cb !important;
 }
 
-/* Mobile responsiveness */
+/* Responsive Design for Mobile */
 @media (max-width: 768px) {
     body {
         padding: 10px;
@@ -286,18 +293,15 @@ body {
     .main-container {
         flex-direction: column;
         height: calc(100vh - 20px);
-        border-radius: 8px;
     }
     
+    /* Hide sidebar on mobile to prioritize chat */
     .sidebar {
-        width: 100%;
-        max-height: 40vh;
-        order: 2;
+        display: none;
     }
     
     .chat-container {
-        order: 1;
-        min-height: 60vh;
+        width: 100%;
     }
     
     .chat-header {
@@ -308,28 +312,42 @@ body {
         font-size: 1.3em;
     }
     
+    .chat-header p {
+        font-size: 0.9em;
+    }
+    
     .chat-messages {
         padding: 15px;
     }
     
     .message-content {
-        max-width: 90%;
+        max-width: 95%;
+        padding: 10px 14px;
+        font-size: 14px;
     }
     
-    .input-group {
-        flex-direction: column;
-        gap: 10px;
+    .chat-input-container {
+        padding: 15px;
+    }
+    
+    #messageInput {
+        padding: 10px 14px;
+        font-size: 16px; /* Prevents zoom on iOS */
     }
     
     #sendButton {
-        align-self: stretch;
+        padding: 10px 18px;
+        font-size: 14px;
+    }
+}
+
+/* Tablet size - show sidebar but make it narrower */
+@media (min-width: 769px) and (max-width: 1024px) {
+    .sidebar {
+        width: 280px;
     }
     
-    .toc-content {
-        padding: 15px;
-    }
-    
-    .suggested-questions {
-        padding: 15px;
+    .main-container {
+        max-width: 100%;
     }
 } 
