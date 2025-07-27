@@ -5,25 +5,33 @@ This module handles the one-time data preparation step.
 
 import os
 import pickle
+import requests
+from typing import List, Optional
 import pymupdf4llm
-import numpy as np
 from langchain.text_splitter import MarkdownTextSplitter
-from sentence_transformers import SentenceTransformer
-from typing import List, Tuple
+import numpy as np
+import voyageai
 from .config import settings
+
 
 class ThesisDataProcessor:
     def __init__(self):
-        self.embedding_model = None
-        self.chunks_file = os.path.join(settings.chunks_path, "thesis_chunks.pkl")
-        self.embeddings_file = os.path.join(settings.embeddings_path, "thesis_embeddings.pkl")
+        self.raw_data_path = settings.raw_data_path
+        self.chunks_path = settings.chunks_path
+        self.embeddings_path = settings.embeddings_path
+        self.chunks_file = os.path.join(self.chunks_path, "thesis_chunks.pkl")
+        self.embeddings_file = os.path.join(self.embeddings_path, "thesis_embeddings.pkl")
         
-    def load_embedding_model(self):
-        """Load the sentence transformer model."""
-        if self.embedding_model is None:
-            print(f"Loading embedding model: {settings.embedding_model}")
-            self.embedding_model = SentenceTransformer(settings.embedding_model)
-        return self.embedding_model
+        # Initialize Voyage AI client
+        if settings.voyage_api_key:
+            self.voyage_client = voyageai.Client(api_key=settings.voyage_api_key)
+        else:
+            self.voyage_client = voyageai.Client()  # Will use VOYAGE_API_KEY env var
+        
+        # Create directories
+        os.makedirs(self.raw_data_path, exist_ok=True)
+        os.makedirs(self.chunks_path, exist_ok=True)
+        os.makedirs(self.embeddings_path, exist_ok=True)
     
     def pdf_to_markdown(self, pdf_path: str) -> str:
         """Convert PDF to markdown text."""
@@ -32,72 +40,93 @@ class ThesisDataProcessor:
         return md_text
     
     def load_markdown_from_url(self, url: str) -> str:
-        """Load markdown text from a URL (for deployment)."""
-        import requests
+        """Download markdown from URL."""
         print(f"Downloading markdown from: {url}")
         response = requests.get(url)
         response.raise_for_status()
         return response.text
     
-    def chunk_text(self, text: str) -> List[str]:
-        """Split text into chunks using Langchain's MarkdownTextSplitter."""
+    def create_chunks(self, text: str) -> List[dict]:
+        """Split text into chunks using MarkdownTextSplitter."""
         print(f"Splitting text into chunks (size: {settings.chunk_size}, overlap: {settings.chunk_overlap})")
-        splitter = MarkdownTextSplitter(
-            chunk_size=settings.chunk_size, 
+        
+        # Initialize the text splitter
+        text_splitter = MarkdownTextSplitter(
+            chunk_size=settings.chunk_size,
             chunk_overlap=settings.chunk_overlap
         )
-        documents = splitter.create_documents([text])
-        chunks = [doc.page_content for doc in documents]
+        
+        # Split the text
+        chunks = text_splitter.split_text(text)
         print(f"Created {len(chunks)} chunks")
-        return chunks
+        
+        # Convert to list of dicts with metadata
+        chunk_dicts = []
+        for i, chunk in enumerate(chunks):
+            chunk_dict = {
+                'index': i,
+                'content': chunk,
+                'length': len(chunk)
+            }
+            chunk_dicts.append(chunk_dict)
+        
+        return chunk_dicts
     
-    def create_embeddings(self, chunks: List[str]) -> np.ndarray:
-        """Create embeddings for text chunks."""
-        model = self.load_embedding_model()
-        print(f"Generating embeddings for {len(chunks)} chunks...")
-        embeddings = model.encode(chunks, show_progress_bar=True)
+    def generate_embeddings(self, chunks: List[dict]) -> np.ndarray:
+        """Generate embeddings using Voyage AI API."""
+        print(f"Generating embeddings using Voyage AI model: {settings.embedding_model}")
+        
+        # Extract text content from chunks
+        texts = [chunk['content'] for chunk in chunks]
+        
+        print(f"Generating embeddings for {len(texts)} chunks...")
+        
+        # Generate embeddings using Voyage AI
+        result = self.voyage_client.embed(
+            texts=texts,
+            model=settings.embedding_model,
+            input_type="document"  # These are documents for retrieval
+        )
+        
+        # Convert to numpy array
+        embeddings = np.array(result.embeddings)
         print(f"Embeddings shape: {embeddings.shape}")
+        
         return embeddings
     
-    def save_processed_data(self, chunks: List[str], embeddings: np.ndarray):
-        """Save chunks and embeddings to disk."""
-        # Ensure directories exist
-        os.makedirs(settings.chunks_path, exist_ok=True)
-        os.makedirs(settings.embeddings_path, exist_ok=True)
-        
-        # Save chunks
+    def save_data(self, chunks: List[dict], embeddings: np.ndarray):
+        """Save chunks and embeddings to files."""
         with open(self.chunks_file, 'wb') as f:
             pickle.dump(chunks, f)
         print(f"Saved chunks to {self.chunks_file}")
         
-        # Save embeddings
         with open(self.embeddings_file, 'wb') as f:
             pickle.dump(embeddings, f)
         print(f"Saved embeddings to {self.embeddings_file}")
     
-    def load_processed_data(self) -> Tuple[List[str], np.ndarray]:
-        """Load chunks and embeddings from disk."""
-        if not os.path.exists(self.chunks_file) or not os.path.exists(self.embeddings_file):
-            raise FileNotFoundError("Processed data not found. Please run data preparation first.")
-        
+    def load_processed_data(self):
+        """Load processed chunks and embeddings."""
         with open(self.chunks_file, 'rb') as f:
             chunks = pickle.load(f)
         
         with open(self.embeddings_file, 'rb') as f:
             embeddings = pickle.load(f)
         
-        print(f"Loaded {len(chunks)} chunks and embeddings with shape {embeddings.shape}")
         return chunks, embeddings
     
-    def process_thesis(self, pdf_path: str = None, markdown_url: str = None) -> Tuple[List[str], np.ndarray]:
-        """Complete pipeline to process thesis from PDF to embeddings."""
+    def process_thesis(self, pdf_path: str = None, markdown_url: str = None):
+        """
+        Process thesis into chunks and embeddings.
         
-        # Check if processed data already exists
+        Args:
+            pdf_path: Path to PDF file (optional)
+            markdown_url: URL to download markdown (optional)
+        """
+        # Check if data already exists
         if os.path.exists(self.chunks_file) and os.path.exists(self.embeddings_file):
-            print("Processed data already exists. Loading from disk...")
-            return self.load_processed_data()
+            print("Processed data already exists. Skipping processing.")
+            return
         
-        # Process from scratch
         print("Processing thesis...")
         
         # Get markdown text - try markdown first, then PDF
@@ -111,8 +140,8 @@ class ThesisDataProcessor:
         elif markdown_url:
             # For deployment - download from URL
             md_text = self.load_markdown_from_url(markdown_url)
-        elif pdf_path and os.path.exists(pdf_path):
-            # Local development - convert PDF
+        elif pdf_path:
+            # Convert PDF to markdown
             md_text = self.pdf_to_markdown(pdf_path)
         else:
             # Try default PDF path as fallback
@@ -125,13 +154,11 @@ class ThesisDataProcessor:
                     "or specify pdf_path/markdown_url parameters."
                 )
         
-        # Chunk the text
-        chunks = self.chunk_text(md_text)
+        # Create chunks
+        chunks = self.create_chunks(md_text)
         
-        # Create embeddings
-        embeddings = self.create_embeddings(chunks)
+        # Generate embeddings
+        embeddings = self.generate_embeddings(chunks)
         
-        # Save processed data
-        self.save_processed_data(chunks, embeddings)
-        
-        return chunks, embeddings 
+        # Save data
+        self.save_data(chunks, embeddings) 
