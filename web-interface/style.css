@@ -166,6 +166,8 @@ body {
     padding: 20px;
     overflow-y: auto;
     background: #f8f9fa;
+    -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+    height: 0; /* Forces flex child to respect overflow */
 }
 
 .message {
@@ -318,6 +320,12 @@ body {
     
     .chat-messages {
         padding: 15px;
+        /* iOS scrolling fixes */
+        overflow-y: scroll;
+        -webkit-overflow-scrolling: touch;
+        height: auto;
+        min-height: 0;
+        flex: 1;
     }
     
     .message-content {
