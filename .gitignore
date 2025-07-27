@@ -42,12 +42,12 @@ ENV/
 
 # Data files
 *.pdf
-data/embeddings/
-data/chunks/
 *.pickle
 *.pkl
 
-# Allow thesis markdown
+# Allow specific pre-computed data
+!data/embeddings/thesis_embeddings.pkl
+!data/chunks/thesis_chunks.pkl
 !data/raw/thesis.md
 
 # API keys and secrets

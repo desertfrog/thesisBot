@@ -44,17 +44,13 @@ async def startup_event():
     """Initialize the chatbot on startup."""
     global chatbot
     try:
-        # First, ensure data is processed
-        processor = ThesisDataProcessor()
-        print("Checking if thesis data needs processing...")
-        processor.process_thesis()  # This will auto-detect if already processed
-        
-        # Then initialize chatbot
+        # Initialize chatbot - embeddings should already exist
         chatbot = ThesisChatbot()
         chatbot.load_data()
         print("Chatbot initialized successfully!")
     except Exception as e:
         print(f"Failed to initialize chatbot: {e}")
+        print("Make sure pre-computed embeddings exist in data/embeddings/ and data/chunks/")
         raise e
 
 @app.get("/")
