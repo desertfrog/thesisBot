@@ -44,22 +44,12 @@ async def startup_event():
     """Initialize the chatbot on startup."""
     global chatbot
     try:
-        # Check if data exists first
+        # First, ensure data is processed
         processor = ThesisDataProcessor()
-        chunks_exist = os.path.exists(processor.chunks_file)
-        embeddings_exist = os.path.exists(processor.embeddings_file)
+        print("Checking if thesis data needs processing...")
+        processor.process_thesis()  # This will auto-detect if already processed
         
-        if not (chunks_exist and embeddings_exist):
-            print("Processing thesis data (first deployment)...")
-            processor.process_thesis()
-            # Clear processor to free memory
-            del processor
-            import gc
-            gc.collect()
-        else:
-            print("Using existing processed data...")
-        
-        # Initialize chatbot
+        # Then initialize chatbot
         chatbot = ThesisChatbot()
         chatbot.load_data()
         print("Chatbot initialized successfully!")

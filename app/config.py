@@ -7,7 +7,7 @@ load_dotenv()
 
 class Settings(BaseSettings):
     anthropic_api_key: str = os.getenv("ANTHROPIC_API_KEY", "")
-    embedding_model: str = os.getenv("EMBEDDING_MODEL", "paraphrase-MiniLM-L3-v2")
+    embedding_model: str = os.getenv("EMBEDDING_MODEL", "all-MiniLM-L6-v2")
     chunk_size: int = int(os.getenv("CHUNK_SIZE", "1000"))
     chunk_overlap: int = int(os.getenv("CHUNK_OVERLAP", "100"))
     top_k_chunks: int = int(os.getenv("TOP_K_CHUNKS", "3"))
