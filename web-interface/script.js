@@ -38,13 +38,7 @@ class ThesisChatbot {
             });
         });
         
-        // Question button clicks
-        document.querySelectorAll('.question-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                const question = btn.getAttribute('data-question');
-                this.askQuestion(question);
-            });
-        });
+
     }
     
     askQuestion(question) {
@@ -116,7 +110,15 @@ class ThesisChatbot {
         
         const contentDiv = document.createElement('div');
         contentDiv.className = `message-content ${isError ? 'error-message' : ''}`;
-        contentDiv.textContent = content;
+        
+        // Simple line break preservation for bot messages
+        if (sender === 'bot' && !isError) {
+            // Just convert line breaks to HTML breaks - keep it simple!
+            contentDiv.innerHTML = content.replace(/\n/g, '<br>');
+        } else {
+            // For user messages and errors, use plain text
+            contentDiv.textContent = content;
+        }
         
         messageDiv.appendChild(contentDiv);
         this.chatMessages.appendChild(messageDiv);
