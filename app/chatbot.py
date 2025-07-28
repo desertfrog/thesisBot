@@ -137,7 +137,7 @@ class ThesisChatbot:
         except Exception as e:
             return f"Error generating response: {str(e)}"
     
-    def answer_question(self, question: str, use_threshold: bool = False, similarity_threshold: float = 0.75):
+    def answer_question(self, question: str, use_threshold: bool = False, similarity_threshold: float = 0.75, top_k: int = None):
         """
         Answer a question using the thesis content.
         
@@ -145,9 +145,13 @@ class ThesisChatbot:
             question: The question to answer
             use_threshold: Whether to use similarity threshold instead of top-k
             similarity_threshold: Minimum similarity score for relevant chunks
+            top_k: Number of chunks to retrieve (overrides settings if provided)
         """
         if self.chunks is None or self.embeddings is None:
             return {"error": "Data not loaded. Please load the processed thesis data first."}
+        
+        # Use provided top_k or fall back to default (equivalent to 5% of 365 chunks)
+        k = top_k if top_k is not None else 18  # 5% of 365 chunks as default
         
         # Find relevant chunks
         if use_threshold:
@@ -155,7 +159,8 @@ class ThesisChatbot:
                 question, similarity_threshold
             )
         else:
-            relevant_chunk_indices = self.find_most_similar_chunks(question)
+            # Update the method call to use our k value
+            relevant_chunk_indices = self.find_most_similar_chunks(question, top_k=k)
         
         if not relevant_chunk_indices:
             return {

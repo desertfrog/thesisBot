@@ -30,8 +30,9 @@ chatbot = None
 
 class QuestionRequest(BaseModel):
     question: str
-    use_threshold: Optional[bool] = False
-    similarity_threshold: Optional[float] = 0.75
+    use_threshold: bool = False
+    similarity_threshold: float = 0.75
+    context_percentage: float = 5.0  # Percentage of total thesis to use as context
 
 class QuestionResponse(BaseModel):
     answer: str
@@ -79,31 +80,32 @@ async def health_check():
 
 @app.post("/ask", response_model=QuestionResponse)
 async def ask_question(request: QuestionRequest):
-    """
-    Ask a question about the thesis.
-    
-    Args:
-        request: QuestionRequest containing the question and optional parameters
-        
-    Returns:
-        QuestionResponse with the answer and metadata
-    """
-    if chatbot is None:
+    """Ask a question about the thesis."""
+    if not chatbot:
         raise HTTPException(status_code=503, detail="Chatbot not initialized")
     
     try:
+        # Calculate number of chunks based on percentage (minimum 5%, total 365 chunks)
+        total_chunks = 365
+        min_percentage = 5.0
+        percentage = max(request.context_percentage, min_percentage)
+        top_k_chunks = max(1, int(total_chunks * percentage / 100))
+        
         result = chatbot.answer_question(
-            question=request.question,
-            use_threshold=request.use_threshold,
-            similarity_threshold=request.similarity_threshold
+            request.question,
+            request.use_threshold,
+            request.similarity_threshold,
+            top_k=top_k_chunks
         )
         
         return QuestionResponse(
             question=request.question,
-            **result
+            answer=result["answer"],
+            num_chunks_used=result["num_chunks_used"],
+            chunk_indices=result["chunk_indices"]
         )
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error processing question: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/process")
 async def process_thesis():

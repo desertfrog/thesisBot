@@ -8,45 +8,47 @@ class ThesisChatbot {
         this.chatMessages = document.getElementById('chatMessages');
         this.loadingOverlay = document.getElementById('loadingOverlay');
         this.status = document.getElementById('status');
+        this.contextSlider = document.getElementById('contextSlider');
+        this.contextValue = document.getElementById('contextValue');
         
         this.initializeEventListeners();
-        this.updateStatus('Ready to answer questions!');
+        this.updateCharacterCount();
     }
     
     initializeEventListeners() {
         // Send button click
-        this.sendButton.addEventListener('click', () => this.sendMessage());
+        this.sendButton.addEventListener('click', () => this.handleSendMessage());
         
         // Enter key press
         this.messageInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                this.sendMessage();
+            if (e.key === 'Enter') {
+                this.handleSendMessage();
             }
         });
         
-        // Auto-resize input and character limit
-        this.messageInput.addEventListener('input', () => {
-            this.updateCharacterCount();
+        // Character count
+        this.messageInput.addEventListener('input', () => this.updateCharacterCount());
+        
+        // Context slider
+        this.contextSlider.addEventListener('input', () => {
+            this.contextValue.textContent = `${this.contextSlider.value}%`;
         });
         
-        // Table of contents item clicks
+        // TOC item clicks
         document.querySelectorAll('.toc-item').forEach(item => {
             item.addEventListener('click', () => {
                 const question = item.getAttribute('data-question');
                 this.askQuestion(question);
             });
         });
-        
-
     }
     
     askQuestion(question) {
         this.messageInput.value = question;
-        this.sendMessage();
+        this.handleSendMessage();
     }
     
-    async sendMessage() {
+    async handleSendMessage() {
         const message = this.messageInput.value.trim();
         
         if (!message) {
@@ -93,7 +95,8 @@ class ThesisChatbot {
             body: JSON.stringify({
                 question: question,
                 use_threshold: false,
-                similarity_threshold: 0.75
+                similarity_threshold: 0.75,
+                context_percentage: parseFloat(this.contextSlider.value)
             })
         });
         

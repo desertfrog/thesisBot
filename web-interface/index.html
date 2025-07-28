@@ -61,6 +61,11 @@
             </div>
             
             <div class="chat-input-container">
+                <div class="context-control">
+                    <label for="contextSlider">Context Amount: <span id="contextValue">5%</span> of thesis</label>
+                    <input type="range" id="contextSlider" min="5" max="100" value="5" step="5">
+                    <div class="context-help">More context = more comprehensive but slower responses</div>
+                </div>
                 <div class="input-group">
                     <input 
                         type="text" 

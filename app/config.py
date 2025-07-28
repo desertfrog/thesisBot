@@ -11,7 +11,6 @@ class Settings(BaseSettings):
     embedding_model: str = os.getenv("EMBEDDING_MODEL", "voyage-3.5-lite")
     chunk_size: int = int(os.getenv("CHUNK_SIZE", "1000"))
     chunk_overlap: int = int(os.getenv("CHUNK_OVERLAP", "100"))
-    top_k_chunks: int = int(os.getenv("TOP_K_CHUNKS", "3"))
     max_tokens: int = int(os.getenv("MAX_TOKENS", "1500"))
     
     # Data paths
