@@ -93,11 +93,5 @@ thesis_bot/
 - Embeddings: `voyage-3.5-lite`, `voyage-3.5`, `voyage-3-large`
 - LLM: Any Claude model via Anthropic API
 
-## Demo
-
-- **Live Demo**: [Your GitHub Pages URL]
-- **API Health**: [Your Render URL]/health
-
----
 
 **Note**: This is a demonstration project. Adapt it for your specific thesis and requirements! 

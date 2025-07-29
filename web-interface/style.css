@@ -165,8 +165,9 @@ body {
 .header-links {
     margin-top: 12px;
     display: flex;
-    flex-direction: column;
-    gap: 4px;
+    flex-direction: row;
+    gap: 16px;
+    justify-content: center;
 }
 
 /* Individual header link styling */
@@ -426,7 +427,8 @@ body {
     /* Header links mobile styling */
     .header-links {
         margin-top: 8px;
-        gap: 3px;
+        gap: 12px;
+        flex-wrap: wrap;
     }
     
     .github-link, .website-link, .contact-link {
