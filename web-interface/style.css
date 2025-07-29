@@ -161,6 +161,44 @@ body {
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 
+/* Header links container */
+.header-links {
+    margin-top: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+/* Individual header link styling */
+.github-link, .website-link, .contact-link {
+    margin: 0;
+    font-size: 14px;
+}
+
+.github-link a, .website-link a, .contact-link a {
+    color: rgba(255, 255, 255, 0.8);
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+}
+
+.github-link a:hover, .website-link a:hover, .contact-link a:hover {
+    color: white;
+    text-decoration: underline;
+}
+
+/* GitHub SVG icon styling */
+.github-link svg {
+    opacity: 0.8;
+    transition: opacity 0.2s ease;
+}
+
+.github-link a:hover svg {
+    opacity: 1;
+}
+
 .chat-messages {
     flex: 1;
     padding: 20px;
@@ -383,6 +421,16 @@ body {
     
     .chat-header p {
         font-size: 0.9em;
+    }
+    
+    /* Header links mobile styling */
+    .header-links {
+        margin-top: 8px;
+        gap: 3px;
+    }
+    
+    .github-link, .website-link, .contact-link {
+        font-size: 13px;
     }
     
     .chat-messages {

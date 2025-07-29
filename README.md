@@ -1,5 +1,7 @@
 # Thesis Chatbot
 
+🔗 **[Try the Live Demo →](https://desertfrog.github.io/thesisBot/web-interface/)**
+
 **A demonstration project** showing how to build a conversational AI system for your thesis using Retrieval Augmented Generation (RAG). Ask questions about your thesis content and get intelligent responses powered by Voyage AI embeddings and Claude AI.
 
 > 🎓 **Demo Purpose**: This project serves as an example implementation for creating thesis chatbots. Use it as a starting point to build your own!
